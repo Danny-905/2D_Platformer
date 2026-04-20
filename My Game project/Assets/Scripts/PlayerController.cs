@@ -10,12 +10,15 @@ public class PlayerController : MonoBehaviour
     public LayerMask groundLayer;
 
     private Rigidbody2D rb;
+    private Animator pAni;
     private bool isGrounded;
     private float moveInput;
+    bool isGiant = false;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        pAni = GetComponent<Animator>();
     }
 
     private void Update()
@@ -42,15 +45,37 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            pAni.SetTrigger("Jump");
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-           if (collision.CompareTag("Respawn"))
+        if (collision.CompareTag("Respawn"))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
-    }
+        if (collision.CompareTag("Finish"))
+        {
+            collision.GetComponent<LevelObject>().MoveToNextLevel();
+        }
 
+        if (collision.CompareTag("Enemy"))
+        {
+            if (isGiant)
+                Destroy(collision.gameObject);
+            else
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        if (collision.CompareTag("Item"))
+        {
+            isGiant = true;
+            Destroy(collision.gameObject);
+        }
+    }
+    public void ResetItem()
+    {
+        isGiant = false;
+    }
 }
