@@ -25,12 +25,22 @@ public class PlayerController : MonoBehaviour
     {
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
 
-        if (moveInput > 0)
-            transform.localScale = new Vector3(-1, 1, 1);
-        else if (moveInput < 0)
-            transform.localScale = new Vector3(1, 1, 1);
+        if (isGiant)
+        {
+            if (moveInput > 0)
+                transform.localScale = new Vector3(-2, 2, 2);
+            else if (moveInput < 0)
+                transform.localScale = new Vector3(2, 2, 2);
+        }
+        else
+        {
+            if (moveInput > 0)
+                transform.localScale = new Vector3(-1, 1, 1);
+            else if (moveInput < 0)
+                transform.localScale = new Vector3(1, 1, 1);
+        }
 
-            isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.01f, groundLayer);
     }
 
     public void OnMove(InputValue value)
@@ -46,6 +56,13 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
             pAni.SetTrigger("Jump");
+        }
+    }
+    public void OnMainMenu(InputValue value)
+    {
+        if (value.isPressed)
+        {
+            SceneManager.LoadScene("TitleScene");
         }
     }
 
@@ -71,6 +88,7 @@ public class PlayerController : MonoBehaviour
         if (collision.CompareTag("Item"))
         {
             isGiant = true;
+            Invoke(nameof(ResetItem), 4f);
             Destroy(collision.gameObject);
         }
     }
